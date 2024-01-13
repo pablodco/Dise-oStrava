@@ -2,21 +2,44 @@ package servidor.dominio;
 
 import java.util.Date;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
+@Entity
 public class Entrenamiento {
 	private long duracion;
+	@Id
 	private String titulo;
 	private Actividad actividad;
 	private double distancia;
 	private Date fecha_ini;
+	@ManyToOne
+	private Usuario usuario;
+	public double getDistancia() {
+		return distancia;
+	}
 
-	public Entrenamiento(long duracion, String titulo, Actividad actividad, double distancia, Date fecha_ini) {
+	public void setDistancia(double distancia) {
+		this.distancia = distancia;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
+	public Entrenamiento(long duracion, String titulo, Actividad actividad, double distancia, Date fecha_ini,Usuario usuario) {
 		super();
 		this.duracion = duracion;
 		this.titulo = titulo;
 		this.actividad = actividad;
 		this.distancia = distancia;
 		this.fecha_ini = fecha_ini;
+		this.usuario=usuario;
 	}
 
 	public Entrenamiento() {

@@ -4,14 +4,27 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+@Entity
 public class Reto {
 	private int objetivo;
 	private String descripcion;
+	@Id
 	private String nombre;
 	private List<Actividad> actividades;
-	private List<Usuario> listaParticipantes;
+	@ManyToOne
+	private Usuario creador;
+	@ManyToOne
+	private Usuario usuario;
 	private Date fecha_ini;
 	private Date fecha_fin;
+	private TipoObjectivo tipoObjetivo;
 	
 	
 	public Date getFecha_ini() {
@@ -34,15 +47,17 @@ public class Reto {
 		return objetivo;
 	}
 
-	public Reto(int objetivo, String descripcion, String nombre,Date fecha_ini, Date fecha_fin,List<Actividad> actividades) {
+	public Reto(int objetivo, String descripcion, String nombre,Date fecha_ini, Date fecha_fin,List<Actividad> actividades,TipoObjectivo tipoObjetivo,Usuario creador,Usuario usuario) {
 		super();
 		this.objetivo = objetivo;
 		this.descripcion = descripcion;
 		this.nombre = nombre;
 		this.actividades = actividades;
-		this.listaParticipantes =new ArrayList<Usuario>();
 		this.fecha_fin= fecha_fin;
 		this.fecha_ini= fecha_ini;
+		this.tipoObjetivo= tipoObjetivo;
+		this.creador=creador;
+		this.usuario=usuario;
 	}
 	
 	public Reto() {
@@ -53,7 +68,7 @@ public class Reto {
 	@Override
 	public String toString() {
 		return "Reto [objetivo=" + objetivo + ", descripcion=" + descripcion + ", nombre=" + nombre + ", actividades="
-				+ actividades + ", listaParticipantes=" + listaParticipantes + "]"+fecha_fin;
+				+ actividades +fecha_fin;
 	}
 
 	public void setObjetivo(int objetivo) {
@@ -75,6 +90,15 @@ public class Reto {
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
 	}
+	
+
+	public TipoObjectivo getTipoObjectivo() {
+		return tipoObjetivo;
+	}
+
+	public void setTipoObjectivo(TipoObjectivo tipoObjectivo) {
+		this.tipoObjetivo = tipoObjectivo;
+	}
 
 	public List<Actividad> getActividades() {
 		return actividades;
@@ -84,19 +108,14 @@ public class Reto {
 		this.actividades = actividades;
 	}
 
-	public List<Usuario> getListaParticipantes() {
-		return listaParticipantes;
+	public Usuario getUsuario() {
+		return usuario;
 	}
 
-	public void setListaParticipantes(List<Usuario> listaParticipantes) {
-		this.listaParticipantes = listaParticipantes;
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
 	}
-	public boolean anadirUsuario(Usuario usuario) {
-		if(usuario!=null) {
-			this.listaParticipantes.add(usuario);
-			return true;
-		}return false;
-	}
+
 	public boolean equals(Object obj) {
 		if (obj instanceof Reto) {
 			if ((Reto) obj != null) {
@@ -104,5 +123,21 @@ public class Reto {
 			}
 		}
 		return false;
+	}
+
+	public Usuario getCreador() {
+		return creador;
+	}
+
+	public void setCreador(Usuario creador) {
+		this.creador = creador;
+	}
+
+	public TipoObjectivo getTipoObjetivo() {
+		return tipoObjetivo;
+	}
+
+	public void setTipoObjetivo(TipoObjectivo tipoObjetivo) {
+		this.tipoObjetivo = tipoObjetivo;
 	}
 }

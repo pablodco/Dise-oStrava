@@ -11,5 +11,25 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/gson-2.10.1.jar"/>
+	<classpathentry kind="lib" path="lib/lib/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/lib/spring-beans-6.0.13.jar"/>
+	<classpathentry kind="lib" path="lib/lib/spring-boot-3.1.5.jar"/>
+	<classpathentry kind="lib" path="lib/spring-boot-3.1.5.jar"/>
+	<classpathentry kind="lib" path="lib/lib/spring-boot-autoconfigure-3.1.5.jar"/>
+	<classpathentry kind="lib" path="lib/lib/spring-context-6.0.13.jar"/>
+	<classpathentry kind="lib" path="lib/lib/spring-web-6.0.13.jar"/>
+	<classpathentry kind="lib" path="lib/lib/spring-aop-6.0.13.jar"/>
+	<classpathentry kind="lib" path="lib/lib/spring-expression-6.0.13.jar"/>
+	<classpathentry kind="lib" path="lib/lib/spring-core-6.0.13.jar"/>
+	<classpathentry kind="lib" path="lib/Meta.jar"/>
+	<classpathentry kind="lib" path="lib/lib/commons-codec-1.15.jar"/>
+	<classpathentry kind="lib" path="lib/lib/datanucleus-api-jpa-6.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/lib/datanucleus-core-6.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/lib/datanucleus-jpa-query-6.0.0-release.jar"/>
+	<classpathentry kind="lib" path="lib/lib/datanucleus-rdbms-6.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/lib/javax.persistence-2.2.4.jar"/>
+	<classpathentry kind="lib" path="lib/lib/log4j-1.2.14.jar"/>
+	<classpathentry kind="lib" path="lib/lib/mysql-connector-j-8.1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

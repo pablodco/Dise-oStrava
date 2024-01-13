@@ -1,20 +1,33 @@
 package servidor.dominio;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+@Entity
 public class Usuario {
-
+	
 	private String nombre;
+	@Id
 	private String email;
 	private Date fecha_nac;
 	private int peso_kilo;
 	private int altura;
 	private int frec_card_max;
 	private int frec_card_rep;
+	private MetodoLogin metodo;
+	@OneToMany(mappedBy = "usuario", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
 	private List<Entrenamiento> listaEntrenamientos= new ArrayList<Entrenamiento>();
+	@OneToMany(mappedBy = "usuario", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
 	private List<Reto> listaRetos= new ArrayList<Reto>(20);
+	@OneToMany(mappedBy = "creador", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
 	private List<Reto> listaRetosCreados = new ArrayList<Reto>();
 
 	public Usuario(String nombre, String email, Date fecha_nac, int peso_kilo, int altura, int frec_card_max,
@@ -34,7 +47,7 @@ public class Usuario {
 	}
 	
 	public Usuario(String nombre, String email, Date fecha_nac, int peso_kilo, int altura, int frec_card_max,
-			int frec_card_rep) {
+			int frec_card_rep,MetodoLogin metodo) {
 		super();
 		this.nombre = nombre;
 		this.email = email;
@@ -43,6 +56,15 @@ public class Usuario {
 		this.altura = altura;
 		this.frec_card_max = frec_card_max;
 		this.frec_card_rep = frec_card_rep;
+		this.metodo=metodo;
+	}
+
+	public MetodoLogin getMetodo() {
+		return metodo;
+	}
+
+	public void setMetodo(MetodoLogin metodo) {
+		this.metodo = metodo;
 	}
 
 	public Usuario(String nombre, String email, Date fecha_nac) {
@@ -201,14 +223,12 @@ public class Usuario {
 		try {
 			List<Reto> listaRetosActivos = new ArrayList<Reto>();
 			for (Reto reto : this.listaRetos) {
-				System.out.println(reto);
-				System.out.println(reto.getFecha_fin());
-				System.out.println(reto.getFecha_ini());
-				if (reto.getFecha_fin().after(new Date())) {
+				if (reto.getFecha_fin().getTime()>Calendar.getInstance().getTimeInMillis()>>reto.getFecha_ini().getTime()) {
+					System.out.println(reto);
 					listaRetosActivos.add(reto);
 					
 				}
-			}System.out.println(listaRetosActivos);
+			}
 			return listaRetosActivos;
 		} catch (NullPointerException e) {
 			e.printStackTrace();
@@ -216,7 +236,21 @@ public class Usuario {
 			return null;
 		}
 	}
-		
+	public double obtenerPorcentajeDeReto(Reto reto) {
+			double puntuacion=0;
+			for(Entrenamiento entre: listaEntrenamientos) {
+				if((reto.getFecha_ini().getTime()<entre.getFecha_ini().getTime()<<reto.getFecha_fin().getTime())&& reto.getActividades().contains(entre.getActividad())) {
+					if(reto.getTipoObjectivo().equals(TipoObjectivo.DISTANCIA)) {
+						System.out.println(entre.getdistancia());
+						puntuacion=puntuacion+entre.getdistancia();
+					}if(reto.getTipoObjectivo().equals(TipoObjectivo.TIEMPO)) {
+						System.out.println(entre.getDuracion());
+						puntuacion=puntuacion+entre.getDuracion();
+					}
+				}
+			}System.out.println(puntuacion);
+			return (puntuacion/reto.getObjetivo())*100;
+		}
 	public Entrenamiento obtenerEntrenamientoPorTitulo(String titulo) {
 		try {
 			for (Entrenamiento entre : this.listaEntrenamientos) {

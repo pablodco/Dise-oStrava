@@ -1,7 +1,10 @@
 package servidor.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
+
+import servidor.dominio.TipoObjectivo;
 
 
 public class RetoDTO implements Serializable {
@@ -10,10 +13,11 @@ public class RetoDTO implements Serializable {
 	private String descripcion;
 	private String nombre;
 	private String actividades;
-	private String fecha_ini;
-	private String fecha_fin;
+	private Date fecha_ini;
+	private Date fecha_fin;
+	private String tipoObjectivo;
 
-	public RetoDTO(int objetivo, String descripcion, String nombre, String actividades,String fecha_ini,String fecha_fin) {
+	public RetoDTO(int objetivo, String descripcion, String nombre, String actividades,Date fecha_ini,Date fecha_fin,String tipoObjectivo) {
 		super();
 		this.objetivo = objetivo;
 		this.descripcion = descripcion;
@@ -21,11 +25,22 @@ public class RetoDTO implements Serializable {
 		this.actividades= actividades;
 		this.fecha_fin=fecha_fin;
 		this.fecha_ini=fecha_ini;
+		this.tipoObjectivo= (tipoObjectivo);
 	}
 
 
 	public String getActividades() {
 		return actividades;
+	}
+
+
+	public String getTipoObjectivo() {
+		return tipoObjectivo;
+	}
+
+
+	public void setTipoObjectivo(String tipoObjectivo) {
+		this.tipoObjectivo = tipoObjectivo;
 	}
 
 
@@ -59,22 +74,22 @@ public class RetoDTO implements Serializable {
 	}
 
 	
-	public String getFecha_ini() {
+	public Date getFecha_ini() {
 		return fecha_ini;
 	}
 
 
-	public void setFecha_ini(String fecha_ini) {
+	public void setFecha_ini(Date fecha_ini) {
 		this.fecha_ini = fecha_ini;
 	}
 
 
-	public String getFecha_fin() {
+	public Date getFecha_fin() {
 		return fecha_fin;
 	}
 
 
-	public void setFecha_fin(String fecha_fin) {
+	public void setFecha_fin(Date fecha_fin) {
 		this.fecha_fin = fecha_fin;
 	}
 

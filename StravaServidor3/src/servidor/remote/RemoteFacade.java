@@ -18,6 +18,7 @@ import servidor.dominio.Actividad;
 import servidor.dominio.Entrenamiento;
 import servidor.dominio.MetodoLogin;
 import servidor.dominio.Reto;
+import servidor.dominio.TipoObjectivo;
 import servidor.dominio.Usuario;
 import servidor.dto.EntrenamientoAssembler;
 import servidor.dto.EntrenamientoDTO;
@@ -34,33 +35,37 @@ public class RemoteFacade extends UnicastRemoteObject implements IRemoteFacade {
 	private static DateFormat formatoConHora = new SimpleDateFormat("DD/MM/YYYY HH:mm");
 	private static DateFormat formatoSinHora = new SimpleDateFormat("DD/MM/YYYY");
 	// TODO: Remove this instances when Singleton Pattern is implemented
-	
+
 	public RemoteFacade() throws RemoteException {
 		super();
 	}
 
 	@Override
-	public synchronized long login(String email, String password) throws RemoteException {
+	public synchronized long login(String email, String password, String metodo) throws RemoteException {
 		System.out.println(" * RemoteFacade login(): " + email + " / " + password);
 		// If login() success user is stored in the Server State
 		// If user is not logged in
-		
-		Usuario user=LoginAppService.getInstance().login(email, password); 
+		System.out.println(MetodoLogin.valueOf(metodo));
+		Usuario user = LoginAppService.getInstance().login(email, password, MetodoLogin.valueOf(metodo));
+		long token = Calendar.getInstance().getTimeInMillis();
+		serverState.put(token, user);
 		for (Map.Entry<Long, Usuario> entry : serverState.entrySet()) {
-	            if (entry.getValue().equals(user)) {
-	                return entry.getKey();
-	            }
-	        }
-			throw new RemoteException("No existe el  usuario");
+			if (entry.getValue().equals(user)) {
+				return entry.getKey();
+			}
 		}
+		throw new RemoteException("No existe el  usuario");
+	}
+
 	@Override
 	public synchronized long registro(String email, String password, String nombre, String fecha_nac, int peso_kilo,
-			int altura, int frecuencia_card, int frecuencia_card_max) throws RemoteException {
+			int altura, int frecuencia_card, int frecuencia_card_max, String metodo) throws RemoteException {
 
 		// Perform login() using LoginAppService
 		try {
 			Usuario user = LoginAppService.getInstance().registro(email, password, nombre,
-					formatoSinHora.parse(fecha_nac), peso_kilo, altura, frecuencia_card, frecuencia_card_max);
+					formatoSinHora.parse(fecha_nac), peso_kilo, altura, frecuencia_card, frecuencia_card_max,
+					MetodoLogin.valueOf(metodo));
 			if (user != null) {
 				// If user is not logged in
 				Long token = Calendar.getInstance().getTimeInMillis();
@@ -91,37 +96,38 @@ public class RemoteFacade extends UnicastRemoteObject implements IRemoteFacade {
 	public synchronized boolean crearEntrenamiento(long token, long duracion, String titulo, String actividad,
 			double distancia, Date fecha_ini) throws RemoteException {
 		if (this.serverState.keySet().contains(token)) {
-				StravaAppService.getInstance().crearEntrenamiento(duracion, titulo, Actividad.valueOf(actividad), distancia,fecha_ini, this.serverState.get(token));
-				return true;
-		}throw new RemoteException("Error al crear el entrenamiento");
+			StravaAppService.getInstance().crearEntrenamiento(duracion, titulo, Actividad.valueOf(actividad), distancia,
+					fecha_ini, this.serverState.get(token));
+			return true;
+		}
+		throw new RemoteException("Error al crear el entrenamiento");
 	}
+
 	@Override
 	public synchronized List<EntrenamientoDTO> obtenerEntrenamientos(long token) throws RemoteException {
 		if (this.serverState.containsKey(token)) {
-			return StravaAppService.getInstance().obtenerEntrenamientos(this.serverState.get(token));
+			return EntrenamientoAssembler.getInstance().entreToDTO(
+			StravaAppService.getInstance().obtenerEntrenamientos(this.serverState.get(token)));
 		} else {
 			throw new RemoteException("Error al obtener los entrenamientos");
 		}
 	}
 
 	@Override
-	public synchronized boolean crearReto(long token, int objetivo, String descripcion, String nombre, String fecha_ini,
-			String fecha_fin, String actividades) throws RemoteException {
+	public synchronized boolean crearReto(long token, int objetivo, String descripcion, String nombre, Date fecha_ini,
+			Date fecha_fin, String actividades, String tipo) throws RemoteException {
 		if (this.serverState.keySet().contains(token)) {
-			try {
-				List<Actividad> ListaActividades = new ArrayList<Actividad>();
-				for (String s : actividades.split(",")) {
-					ListaActividades.add(Actividad.valueOf(s));
-				}
-				StravaAppService.getInstance().crearReto(nombre, objetivo, descripcion, formatoSinHora.parse(fecha_ini),
-						formatoSinHora.parse(fecha_fin), ListaActividades, this.serverState.get(token));
-			} catch (ParseException e) {
-				System.err.println("Ha habido un error en el formato de una de las fechas");
+			List<Actividad> ListaActividades = new ArrayList<Actividad>();
+			for (String s : actividades.split(",")) {
+				ListaActividades.add(Actividad.valueOf(s));
 			}
+			StravaAppService.getInstance().crearReto(nombre, objetivo, descripcion, fecha_ini, fecha_fin,
+					ListaActividades, this.serverState.get(token), TipoObjectivo.valueOf(tipo));
 			return true;
 		}
 		return false;
 	}
+
 	@Override
 	public synchronized List<RetoDTO> obtenerRetosDisponibles(long token) throws RemoteException {
 		if (this.serverState.keySet().contains(token)) {
@@ -136,6 +142,7 @@ public class RemoteFacade extends UnicastRemoteObject implements IRemoteFacade {
 			throw new RemoteException("El usuario no existe o no esta loggeado");
 		}
 	}
+
 	@Override
 	public synchronized List<RetoDTO> obtenerRetosActivos(long token) throws RemoteException {
 		if (this.serverState.keySet().contains(token)) {
@@ -150,6 +157,7 @@ public class RemoteFacade extends UnicastRemoteObject implements IRemoteFacade {
 			throw new RemoteException("El usuario no existe o no esta loggeado");
 		}
 	}
+
 	@Override
 	public synchronized boolean aceptarReto(long token, String nombre) throws RemoteException {
 		if (this.serverState.keySet().contains(token)) {
@@ -158,28 +166,39 @@ public class RemoteFacade extends UnicastRemoteObject implements IRemoteFacade {
 			throw new RemoteException("Error al aceptar el reto");
 		}
 	}
-	public long obtenerToken(String email,String password) throws RemoteException{
-		
-		Usuario user=LoginAppService.getInstance().login(email, password); 
-		for (Map.Entry<Long, Usuario> entry : serverState.entrySet()) {
-	            if (entry.getValue().equals(user)) {
-	                return entry.getKey();
-	            }
-	        }
-			throw new RemoteException("No existe el  usuario");
-	}
+
 	@Override
-	public synchronized EntrenamientoDTO obtenerEntrenamientoPorTitulo(long token,String titulo) throws RemoteException {
+	public synchronized EntrenamientoDTO obtenerEntrenamientoPorTitulo(long token, String titulo)
+			throws RemoteException {
 		if (this.serverState.keySet().contains(token)) {
 			try {
-			Entrenamiento entre=StravaAppService.getInstance().obtenerEntrenamientoPorTitulo(serverState.get(token), titulo);
-			EntrenamientoDTO entreDTO=EntrenamientoAssembler.getInstance().entreToDTO(entre);
-			return  entreDTO;
-			}catch (Exception e) {
+				Entrenamiento entre = StravaAppService.getInstance()
+						.obtenerEntrenamientoPorTitulo(serverState.get(token), titulo);
+				EntrenamientoDTO entreDTO = EntrenamientoAssembler.getInstance().entreToDTO(entre);
+				return entreDTO;
+			} catch (Exception e) {
 				throw new RemoteException("No se encuentra el entrenamiento");
 			}
-		}else {
+		} else {
 			throw new RemoteException("No se encuentra el entre");
+		}
+	}
+
+	public synchronized double obtenerPorcentajeDeReto(RetoDTO reto, long token) throws RemoteException {
+		if (this.serverState.containsKey(token)) {
+			List<Actividad> listaActividades = new ArrayList<Actividad>();
+			System.out.println(reto.getActividades());
+			String[] partes = reto.getActividades().split(",");
+			listaActividades.add(Actividad.valueOf(partes[0]));
+			if (partes.length == 2) {
+				listaActividades.add(Actividad.valueOf(partes[1]));
+			}
+			System.out.println(listaActividades);
+			Reto reto2 = new Reto(reto.getObjetivo(), reto.getDescripcion(), reto.getNombre(), reto.getFecha_ini(),
+					reto.getFecha_fin(), listaActividades, TipoObjectivo.valueOf(reto.getTipoObjectivo()),this.serverState.get(token),this.serverState.get(token));
+			return StravaAppService.getInstance().obtenerPorcentajeDeReto(reto2.getNombre(), this.serverState.get(token));
+		} else {
+			throw new RemoteException("No se ha encontrado el token");
 		}
 	}
 }

@@ -2,6 +2,7 @@ package servidor.test;
 
 import servidor.dominio.Actividad;
 import servidor.dominio.Entrenamiento;
+import servidor.dominio.MetodoLogin;
 import servidor.dominio.Usuario;
 import servidor.dto.EntrenamientoDTO;
 import servidor.dto.RetoDTO;
@@ -28,18 +29,17 @@ public class LocalTest {
 		
 		try {
 			facade = new RemoteFacade();
-			try {
-			Entrenamiento entre= new Entrenamiento(60,"correr 20",Actividad.running,12,formatoConHora.parse("2003/01/29 16:00"));
-			
-			Usuario user= new Usuario("pablodel@gmail.com","Pablo",formatoSinHora.parse("2003/01/29"),0, 0, 0, 0);
+			try {			
+			Usuario user= new Usuario("pablodel@gmail.com","Pablo",formatoSinHora.parse("2003/01/29"),0, 0, 0, 0,MetodoLogin.GOOGLE);
+			Entrenamiento entre= new Entrenamiento(60,"correr 20",Actividad.running,12,formatoConHora.parse("2003/01/29 16:00"),user);
+
 			user.anadirEntrenamiento(entre);
 			}catch (ParseException e){
 				e.printStackTrace();
 			}
 			
-			token=facade.registro("pablo@gmail.com","Futbol11" ,"Pablo","2003/01/29",0, 0, 0, 0);
+			token=facade.registro("pablo@gmail.com","Futbol11" ,"Pablo","2003/01/29",0, 0, 0, 0,"META");
 			
-			facade.login( "pablodel@gmail.com", "Futbol11");
 			System.out.println(token);
 			facade.crearEntrenamiento(token,60,"correr 20",Actividad.running.toString(),12,new Date());
 //			token= facade.login("thomas.e2001@gmail.com", "hola");

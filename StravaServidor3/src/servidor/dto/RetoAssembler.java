@@ -28,18 +28,19 @@ public class RetoAssembler {
 		dto.setDescripcion(reto.getDescripcion());
 		dto.setNombre(reto.getNombre());
 		dto.setObjetivo(reto.getObjetivo());
-		dto.setFecha_ini(dt.format(reto.getFecha_ini()));
-		dto.setFecha_fin(dt.format(reto.getFecha_fin()));
+		dto.setFecha_ini((reto.getFecha_ini()));
+		dto.setFecha_fin((reto.getFecha_fin()));
 		String actividades="";
 		for(Actividad a: reto.getActividades()) {
 			if(actividades.equals("")) {
 				actividades= a.toString();
+			}else {
+				actividades= actividades+","+a.toString();
 			}
-			actividades= actividades+","+a.toString();
 		}
 		dto.setActividades(actividades);
+		dto.setTipoObjectivo(reto.getTipoObjectivo().toString());
 		return dto;
-
 	}
 	
 	
